@@ -26,20 +26,17 @@ def create_project(proj_name: str, template: str, framework: str, output_dir: st
     if template == "webapi":
         cmd.append("--use-minimal-apis")
 
-    if run_command(cmd, dry_run, verbose=verbose):
-        ok(f"{Colors.BOLD}{proj_name}{Colors.RESET}  {Colors.GRAY}({template}){Colors.RESET}")
-        return True
-    return False
+    run_command(cmd, dry_run, verbose=verbose)
+    ok(f"{Colors.BOLD}{proj_name}{Colors.RESET}  {Colors.GRAY}({template}){Colors.RESET}")
+    return True
 
 def add_to_sln(sln_path: str, csproj_path: str, dry_run: bool, verbose: bool = False):
-    if run_command(["dotnet", "sln", sln_path, "add", csproj_path], dry_run, verbose=verbose):
-        proj_name = os.path.basename(csproj_path)
-        ok(f"{proj_name} adicionado à solução")
-        return True
-    return False
+    run_command(["dotnet", "sln", sln_path, "add", csproj_path], dry_run, verbose=verbose)
+    proj_name = os.path.basename(csproj_path)
+    ok(f"{proj_name} adicionado à solução")
 
 def add_reference(from_csproj: str, to_csproj: str, dry_run: bool, verbose: bool = False):
-    return run_command(["dotnet", "add", from_csproj, "reference", to_csproj], dry_run, verbose=verbose)
+    run_command(["dotnet", "add", from_csproj, "reference", to_csproj], dry_run, verbose=verbose)
 
 def make_dirs(base_path: str, subdirs: List[str], dry_run: bool):
     for d in subdirs:

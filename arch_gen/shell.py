@@ -15,17 +15,10 @@ def run_command(cmd: List[str], dry_run: bool = False, cwd: Optional[str] = None
         print(f"  {Colors.GRAY}[dry-run]{Colors.RESET} {' '.join(cmd)}")
         return True
     
-    try:
-        subprocess.run(
-            cmd, 
-            capture_output=not verbose, 
-            text=True, 
-            check=True,
-            cwd=cwd
-        )
-        return True
-    except subprocess.CalledProcessError as e:
-        warn(f"Comando falhou: {' '.join(cmd)}")
-        if not verbose and e.stderr:
-            print(f"    {e.stderr.strip()}")
-        return False
+    subprocess.run(
+        cmd, 
+        capture_output=not verbose, 
+        text=True, 
+        check=True,
+        cwd=cwd
+    )
