@@ -1,0 +1,19 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.vscode/
+*.DotSettings.user
+TestResults/
+
+# Secrets
+appsettings.Development.json
+appsettings.Local.json
+**/*.pfx
+**/*.key
+secrets.json
+
+# Docker
+.env
