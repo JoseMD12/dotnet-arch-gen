@@ -61,8 +61,8 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
                 continue
             
             l_info = layer_config[layer]
-            layer_pascal = layer.capitalize()
-            proj_name = f"{namespace}.{module_name}.{layer_pascal}"
+            layer_display = l_info.get("name") or layer.capitalize()
+            proj_name = f"{namespace}.{module_name}.{layer_display}"
             output_dir = os.path.join(root_dir, module_name, proj_name)
             csproj_path = os.path.join(output_dir, f"{proj_name}.csproj")
             
