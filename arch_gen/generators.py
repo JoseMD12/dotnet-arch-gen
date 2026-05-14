@@ -26,20 +26,26 @@ def create_project(proj_name: str, template: str, framework: str, output_dir: st
     if template == "webapi":
         cmd.append("--use-minimal-apis")
 
-    if run_command(cmd, dry_run, verbose=verbose):
-        ok(f"{Colors.BOLD}{proj_name}{Colors.RESET}  {Colors.GRAY}({template}){Colors.RESET}")
-        return True
-    return False
+    run_command(cmd, dry_run, verbose=verbose)
+    
+    # Se chegou aqui, run_command não lançou exceção (sucesso)
+    ok(f"{Colors.BOLD}{proj_name}{Colors.RESET}  {Colors.GRAY}({template}){Colors.RESET}")
+    return True
 
 def add_to_sln(sln_path: str, csproj_path: str, dry_run: bool, verbose: bool = False):
-    if run_command(["dotnet", "sln", sln_path, "add", csproj_path], dry_run, verbose=verbose):
-        proj_name = os.path.basename(csproj_path)
-        ok(f"{proj_name} adicionado à solução")
-        return True
-    return False
+    run_command(["dotnet", "sln", sln_path, "add", csproj_path], dry_run, verbose=verbose)
+    
+    # Se chegou aqui, sucesso
+    proj_name = os.path.basename(csproj_path)
+    ok(f"{proj_name} adicionado à solução")
 
 def add_reference(from_csproj: str, to_csproj: str, dry_run: bool, verbose: bool = False):
-    return run_command(["dotnet", "add", from_csproj, "reference", to_csproj], dry_run, verbose=verbose)
+    run_command(["dotnet", "add", from_csproj, "reference", to_csproj], dry_run, verbose=verbose)
+    
+    # Extrai o nome da camada do path para um log limpo (ex: MyProject.Domain.csproj -> Domain)
+    from_name = os.path.basename(from_csproj).replace(".csproj", "").split(".")[-1]
+    to_name = os.path.basename(to_csproj).replace(".csproj", "").split(".")[-1]
+    ok(f"{from_name} → {to_name}")
 
 def make_dirs(base_path: str, subdirs: List[str], dry_run: bool):
     for d in subdirs:

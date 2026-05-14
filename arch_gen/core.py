@@ -47,26 +47,39 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
         if not dry_run:
             os.makedirs(root_dir, exist_ok=True)
         
-        if run_command(["dotnet", "new", "sln", "--name", solution, "--output", root_dir], dry_run, verbose=verbose):
-            # Após criar, verifica qual extensão o .NET SDK usou de fato
-            sln_path, sln_file = _find_solution_path(root_dir, solution)
-            ok(sln_file or f"{solution}.sln")
+        run_command(["dotnet", "new", "sln", "--name", solution, "--output", root_dir], dry_run, verbose=verbose)
+        # Após criar, verifica qual extensão o .NET SDK usou de fato
+        sln_path, sln_file = _find_solution_path(root_dir, solution)
+        ok(sln_file or f"{solution}.sln")
 
     # Dicionário para rastrear todos os CSPROJs criados
     csproj_map = {}
 
+    # -- Shared --
+    shared_cfg = config.get("shared")
+    if shared_cfg:
+        shared_layers = shared_cfg.get("layers", [])
+        _process_module("Shared", shared_layers, namespace, framework, root_dir, layer_config, sln_path, dry_run, verbose, csproj_map)
+
     # -- Módulos --
     modules = config.get("modules", [])
-    if not modules:
-        err("Nenhum módulo definido em 'modules' no JSON.")
-
     for module_cfg in modules:
         module_name = module_cfg.get("name")
         module_layers = module_cfg.get("layers", [])
-        
-        step(f"Módulo: {module_name}")
-        
-        for layer in module_layers:
+        _process_module(module_name, module_layers, namespace, framework, root_dir, layer_config, sln_path, dry_run, verbose, csproj_map)
+
+    # -- Arquivos de Suporte --
+    step("Arquivos de suporte")
+    create_support_files(root_dir, config, dry_run)
+
+    # -- Resumo Final --
+    _print_summary(root_dir)
+
+def _process_module(module_name, layers, namespace, framework, root_dir, layer_config, sln_path, dry_run, verbose, csproj_map):
+    step(f"Módulo: {module_name}")
+    
+    try:
+        for layer in layers:
             layer = layer.lower()
             if layer not in layer_config:
                 warn(f"Camada desconhecida no módulo '{module_name}': '{layer}'")
@@ -86,7 +99,7 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
 
         # Configurar referências (Dependency Rule)
         info("Configurando referências...")
-        for layer in module_layers:
+        for layer in layers:
             layer = layer.lower()
             if layer not in layer_config: continue
             
@@ -98,15 +111,9 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
             for dep in l_info["deps"]:
                 to_csproj = csproj_map.get((module_name, dep))
                 if to_csproj:
-                    if add_reference(from_csproj, to_csproj, dry_run, verbose=verbose):
-                        ok(f"{layer} → {dep}")
-
-    # -- Arquivos de Suporte --
-    step("Arquivos de suporte")
-    create_support_files(root_dir, config, dry_run)
-
-    # -- Resumo Final --
-    _print_summary(root_dir)
+                    add_reference(from_csproj, to_csproj, dry_run, verbose=verbose)
+    except Exception as e:
+        err(f"Falha ao processar módulo '{module_name}': {e}. Interrompendo este módulo.")
 
 def _print_summary(root_dir):
     print("")
