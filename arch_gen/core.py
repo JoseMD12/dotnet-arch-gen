@@ -37,8 +37,8 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
     else:
         if not dry_run:
             os.makedirs(root_dir, exist_ok=True)
-        run_command(["dotnet", "new", "sln", "--name", solution, "--output", root_dir], dry_run, verbose=verbose)
-        ok(sln_file)
+        if run_command(["dotnet", "new", "sln", "--name", solution, "--output", root_dir], dry_run, verbose=verbose):
+            ok(sln_file)
 
     # Dicionário para rastrear todos os CSPROJs criados
     csproj_map = {}
@@ -86,8 +86,8 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
             for dep in l_info["deps"]:
                 to_csproj = csproj_map.get((module_name, dep))
                 if to_csproj:
-                    add_reference(from_csproj, to_csproj, dry_run, verbose=verbose)
-                    ok(f"{layer} → {dep}")
+                    if add_reference(from_csproj, to_csproj, dry_run, verbose=verbose):
+                        ok(f"{layer} → {dep}")
 
     # -- Arquivos de Suporte --
     step("Arquivos de suporte")
