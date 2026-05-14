@@ -1,5 +1,4 @@
 import subprocess
-import sys
 from typing import List, Optional
 from .ui import Colors, warn, err
 
@@ -17,7 +16,7 @@ def run_command(cmd: List[str], dry_run: bool = False, cwd: Optional[str] = None
         return True
     
     try:
-        result = subprocess.run(
+        subprocess.run(
             cmd, 
             capture_output=not verbose, 
             text=True, 

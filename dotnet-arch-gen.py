@@ -52,7 +52,7 @@ Exemplos:
     args = parser.parse_args()
 
     # Verifica ambiente
-    sdk_version = check_dotnet_sdk()
+    check_dotnet_sdk()
 
     # Lógica para encontrar o arquivo de configuração
     config_path = args.config
