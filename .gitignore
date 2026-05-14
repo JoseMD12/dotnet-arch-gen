@@ -149,7 +149,6 @@ cython_debug/
 .vscode/
 
 # Project specific
-config.json
-MyProjectOutput/
-TestOutput/
-*Solution/
+# tirar *.json menos example-config.json
+*.json
+!example-config.json
