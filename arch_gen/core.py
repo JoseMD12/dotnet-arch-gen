@@ -4,6 +4,13 @@ from .config import load_config
 from .shell import run_command
 from .generators import create_project, add_to_sln, add_reference, make_dirs, create_support_files
 
+def _find_solution_path(root_dir: str, solution_name: str):
+    for ext in [".sln", ".slnx"]:
+        path = os.path.join(root_dir, f"{solution_name}{ext}")
+        if os.path.exists(path):
+            return path, f"{solution_name}{ext}"
+    return None, None
+
 def generate(config_path: str, dry_run: bool, output_path_override: str = None, verbose: bool = False):
     config = load_config(config_path)
     layer_config = config["_layer_config"]
@@ -13,6 +20,7 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
     framework = config.get("framework", "net10.0")
     
     output_path = output_path_override or config.get("output_path") or solution
+    output_path = os.path.abspath(output_path)
 
     if not solution or not namespace:
         err("Campos 'solution' e 'namespace' são obrigatórios no JSON.")
@@ -27,18 +35,22 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
         warn("Modo dry-run ativo — nenhum arquivo será criado.")
 
     root_dir = output_path
-    sln_file = f"{solution}.sln"
-    sln_path = os.path.join(root_dir, sln_file)
+    
+    # Busca por solução existente
+    sln_path, sln_file = _find_solution_path(root_dir, solution)
 
     # -- Solução --
     step("Criando solução")
-    if os.path.exists(sln_path):
+    if sln_path:
         skip(sln_file)
     else:
         if not dry_run:
             os.makedirs(root_dir, exist_ok=True)
-        run_command(["dotnet", "new", "sln", "--name", solution, "--output", root_dir], dry_run, verbose=verbose)
-        ok(sln_file)
+        
+        if run_command(["dotnet", "new", "sln", "--name", solution, "--output", root_dir], dry_run, verbose=verbose):
+            # Após criar, verifica qual extensão o .NET SDK usou de fato
+            sln_path, sln_file = _find_solution_path(root_dir, solution)
+            ok(sln_file or f"{solution}.sln")
 
     # Dicionário para rastrear todos os CSPROJs criados
     csproj_map = {}
@@ -61,8 +73,8 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
                 continue
             
             l_info = layer_config[layer]
-            layer_pascal = layer.capitalize()
-            proj_name = f"{namespace}.{module_name}.{layer_pascal}"
+            layer_display = l_info.get("name") or layer.capitalize()
+            proj_name = f"{namespace}.{module_name}.{layer_display}"
             output_dir = os.path.join(root_dir, module_name, proj_name)
             csproj_path = os.path.join(output_dir, f"{proj_name}.csproj")
             
@@ -86,8 +98,8 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
             for dep in l_info["deps"]:
                 to_csproj = csproj_map.get((module_name, dep))
                 if to_csproj:
-                    add_reference(from_csproj, to_csproj, dry_run, verbose=verbose)
-                    ok(f"{layer} → {dep}")
+                    if add_reference(from_csproj, to_csproj, dry_run, verbose=verbose):
+                        ok(f"{layer} → {dep}")
 
     # -- Arquivos de Suporte --
     step("Arquivos de suporte")

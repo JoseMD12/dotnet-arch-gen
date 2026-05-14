@@ -1,48 +1,56 @@
 import json
 import os
-from typing import Dict, List, TypedDict
+from typing import Dict, List, TypedDict, Optional
 from .ui import err
 
 class LayerInfo(TypedDict):
     template: str
     subdirs: List[str]
     deps: List[str]
+    name: Optional[str] # Nome customizado para a camada (ex: API em vez de Api)
 
 DEFAULT_LAYER_CONFIG: Dict[str, LayerInfo] = {
     "domain": {
         "template": "classlib",
         "subdirs": ["Entities", "ValueObjects", "Exceptions", "Repositories"],
-        "deps": []
+        "deps": [],
+        "name": "Domain"
     },
     "application": {
         "template": "classlib",
         "subdirs": ["UseCases", "DTOs", "Interfaces", "Mappings"],
-        "deps": ["domain"]
+        "deps": ["domain"],
+        "name": "Application"
     },
     "infrastructure": {
         "template": "classlib",
         "subdirs": ["Data", "Repositories", "Security", "Migrations"],
-        "deps": ["domain"]
+        "deps": ["domain"],
+        "name": "Infrastructure"
     },
     "api": {
         "template": "webapi",
         "subdirs": ["Controllers", "Endpoints", "Middlewares"],
-        "deps": ["application", "infrastructure"]
+        "deps": ["application", "infrastructure"],
+        "name": "API"
     },
     "worker": {
         "template": "worker",
         "subdirs": ["Jobs", "Handlers", "Consumers"],
-        "deps": ["application", "infrastructure"]
+        "deps": ["application", "infrastructure"],
+        "name": "Worker"
     },
     "console": {
         "template": "console",
         "subdirs": ["Commands", "Handlers"],
-        "deps": ["application"]
+        "deps": ["application"],
+        "name": "Console"
     },
     "tests": {
         "template": "xunit",
         "subdirs": ["Unit", "Integration", "Fixtures"],
-        "deps": ["application", "infrastructure"]
+        "deps": ["application", "infrastructure"],
+        "name": "Tests"
     }
 }
 
