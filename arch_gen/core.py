@@ -112,7 +112,6 @@ def _process_module(module_name, layers, namespace, framework, root_dir, layer_c
                 to_csproj = csproj_map.get((module_name, dep))
                 if to_csproj:
                     add_reference(from_csproj, to_csproj, dry_run, verbose=verbose)
-                    ok(f"{layer} → {dep}")
     except Exception as e:
         err(f"Falha ao processar módulo '{module_name}': {e}. Interrompendo este módulo.")
 

@@ -62,12 +62,7 @@ def load_config(config_path: str):
         with open(config_path, "r") as f:
             config = json.load(f)
         
-        # Mesclar camadas customizadas se existirem
-        layer_config = DEFAULT_LAYER_CONFIG.copy()
-        if "custom_layers" in config:
-            layer_config.update(config["custom_layers"])
-        
-        config["_layer_config"] = layer_config
+        config["_layer_config"] = DEFAULT_LAYER_CONFIG.copy()
         return config
     except Exception as e:
         err(f"Erro ao ler JSON: {e}")

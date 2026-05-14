@@ -13,7 +13,7 @@ def check_dotnet_sdk():
 def run_command(cmd: List[str], dry_run: bool = False, cwd: Optional[str] = None, verbose: bool = False):
     if dry_run:
         print(f"  {Colors.GRAY}[dry-run]{Colors.RESET} {' '.join(cmd)}")
-        return True
+        return
     
     subprocess.run(
         cmd, 
