@@ -66,9 +66,9 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
             output_dir = os.path.join(root_dir, module_name, proj_name)
             csproj_path = os.path.join(output_dir, f"{proj_name}.csproj")
             
-            if create_project(proj_name, l_info["template"], framework, output_dir, dry_run):
+            if create_project(proj_name, l_info["template"], framework, output_dir, dry_run, verbose=verbose):
                 make_dirs(output_dir, l_info["subdirs"], dry_run)
-                add_to_sln(sln_path, csproj_path, dry_run)
+                add_to_sln(sln_path, csproj_path, dry_run, verbose=verbose)
             
             csproj_map[(module_name, layer)] = csproj_path
 
@@ -86,7 +86,7 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
             for dep in l_info["deps"]:
                 to_csproj = csproj_map.get((module_name, dep))
                 if to_csproj:
-                    add_reference(from_csproj, to_csproj, dry_run)
+                    add_reference(from_csproj, to_csproj, dry_run, verbose=verbose)
                     ok(f"{layer} → {dep}")
 
     # -- Arquivos de Suporte --
