@@ -24,7 +24,7 @@ DEFAULT_LAYER_CONFIG: Dict[str, LayerInfo] = {
     },
     "infrastructure": {
         "template": "classlib",
-        "subdirs": ["Data", "Repositories", "Security", "Migrations"],
+        "subdirs": ["Data", "Repositories", "Security"],
         "deps": ["domain"],
         "name": "Infrastructure"
     },

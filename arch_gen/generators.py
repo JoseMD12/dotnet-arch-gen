@@ -42,10 +42,9 @@ def add_to_sln(sln_path: str, csproj_path: str, dry_run: bool, verbose: bool = F
 def add_reference(from_csproj: str, to_csproj: str, dry_run: bool, verbose: bool = False):
     run_command(["dotnet", "add", from_csproj, "reference", to_csproj], dry_run, verbose=verbose)
     
-    # Extrai o nome da camada do path para um log limpo (ex: MyProject.Domain.csproj -> Domain)
-    from_name = os.path.basename(from_csproj).replace(".csproj", "").split(".")[-1]
-    to_name = os.path.basename(to_csproj).replace(".csproj", "").split(".")[-1]
-    ok(f"{from_name} → {to_name}")
+    from_name = os.path.basename(from_csproj).replace(".csproj", "")
+    to_name = os.path.basename(to_csproj).replace(".csproj", "")
+    ok(f"{from_name} {Colors.GRAY}→{Colors.RESET} {to_name}")
 
 def make_dirs(base_path: str, subdirs: List[str], dry_run: bool):
     for d in subdirs:
