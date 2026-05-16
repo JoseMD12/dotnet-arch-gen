@@ -50,9 +50,13 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
         run_command(["dotnet", "new", "sln", "--name", solution, "--output", root_dir], dry_run, verbose=verbose)
         # Após criar, verifica qual extensão o .NET SDK usou de fato
         sln_path, sln_file = _find_solution_path(root_dir, solution)
+        
+        if dry_run and not sln_path:
+            sln_path = os.path.join(root_dir, f"{solution}.sln")
+
         ok(sln_file or f"{solution}.sln")
 
-    # Dicionário para rastrear todos os CSPROJs criados
+    # Dicionário para rastrear todos os .csproj criados
     csproj_map = {}
 
     # -- Shared --
@@ -97,7 +101,7 @@ def _process_module(module_name, layers, namespace, framework, root_dir, layer_c
             
             csproj_map[(module_name, layer)] = csproj_path
 
-        # Configurar referências (Dependency Rule)
+        # Configurar referências
         info("Configurando referências...")
         for layer in layers:
             layer = layer.lower()
@@ -112,6 +116,12 @@ def _process_module(module_name, layers, namespace, framework, root_dir, layer_c
                 to_csproj = csproj_map.get((module_name, dep))
                 if to_csproj:
                     add_reference(from_csproj, to_csproj, dry_run, verbose=verbose)
+
+            # Dependências para o Shared
+            if module_name != "Shared":
+                shared_csproj = csproj_map.get(("Shared", layer))
+                if shared_csproj:
+                    add_reference(from_csproj, shared_csproj, dry_run, verbose=verbose)
     except Exception as e:
         err(f"Falha ao processar módulo '{module_name}': {e}. Interrompendo este módulo.")
 
