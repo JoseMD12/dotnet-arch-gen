@@ -2,7 +2,7 @@
   "solution": "SocialApp",
   "namespace": "SocialCorp",
   "framework": "net10.0",
-  "output_path": "../SocialApp",
+  "output_path": "./SocialApp",
   "docker": true,
   "gitignore": true,
   "shared": {
