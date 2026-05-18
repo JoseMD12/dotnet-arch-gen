@@ -1,0 +1,29 @@
+{
+  "solution": "SocialApp",
+  "namespace": "SocialCorp",
+  "framework": "net10.0",
+  "output_path": "./SocialApp",
+  "docker": true,
+  "gitignore": true,
+  "shared": {
+    "layers": ["domain", "infrastructure"]
+  },
+  "modules": [
+    {
+      "name": "Identity",
+      "layers": ["domain", "application", "infrastructure", "api", "tests"]
+    },
+    {
+      "name": "Feed",
+      "layers": ["domain", "application", "infrastructure", "api"]
+    },
+    {
+      "name": "Notification",
+      "layers": ["domain", "application", "infrastructure", "worker"]
+    },
+    {
+      "name": "Cleanup",
+      "layers": ["domain", "console"]
+    }
+  ]
+}
