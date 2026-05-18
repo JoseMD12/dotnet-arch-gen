@@ -54,7 +54,9 @@ class TestGenerators(unittest.TestCase):
     @patch("os.path.exists", return_value=False)
     def test_create_support_files(self, mock_exists, mock_open, mock_template):
         from arch_gen.generators import create_support_files
-        create_support_files("root", {"gitignore": True, "docker": True}, False)
+        from arch_gen.config import ProjectConfig
+        config = ProjectConfig(solution="Test", namespace="Test", gitignore=True, docker=True)
+        create_support_files("root", config, False)
         self.assertEqual(mock_open.call_count, 2)
 
     @patch("os.path.exists", return_value=True)

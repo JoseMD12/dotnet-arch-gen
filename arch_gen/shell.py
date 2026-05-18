@@ -12,7 +12,7 @@ ALLOWED_FLAGS = {
 }
 
 ALLOWED_COMMANDS = {
-    "new", "sln", "add", "reference"
+    "new", "sln", "add"
 }
 
 def check_dotnet_sdk() -> str:

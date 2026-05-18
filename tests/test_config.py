@@ -15,9 +15,9 @@ class TestConfig(unittest.TestCase):
         with patch("builtins.open", unittest.mock.mock_open(read_data=json.dumps(mock_data))):
             with patch("os.path.exists", return_value=True):
                 config = load_config("fake.json")
-                self.assertEqual(config["solution"], "TestApp")
-                self.assertIn("_layer_config", config)
-                self.assertEqual(config["_layer_config"]["domain"]["template"], "classlib")
+                self.assertEqual(config.solution, "TestApp")
+                self.assertIsNotNone(config.layer_definitions)
+                self.assertEqual(config.layer_definitions["domain"].template, "classlib")
 
     @patch("os.path.exists", return_value=False)
     @patch("arch_gen.ui.sys.exit")
@@ -37,12 +37,12 @@ class TestConfig(unittest.TestCase):
     @patch("os.path.exists", return_value=True)
     def test_load_config_layer_config_injection(self, mock_exists):
         """Garante que as configurações padrão de camadas são sempre injetadas."""
-        mock_data = {"solution": "X"}
+        mock_data = {"solution": "X", "namespace": "X"}
         with patch("builtins.open", unittest.mock.mock_open(read_data=json.dumps(mock_data))):
             config = load_config("fake.json")
-            self.assertIn("_layer_config", config)
-            self.assertIn("domain", config["_layer_config"])
-            self.assertIn("application", config["_layer_config"])
+            self.assertIsNotNone(config.layer_definitions)
+            self.assertIn("domain", config.layer_definitions)
+            self.assertIn("application", config.layer_definitions)
 
 if __name__ == "__main__":
     unittest.main()

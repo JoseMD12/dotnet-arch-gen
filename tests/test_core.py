@@ -2,39 +2,20 @@ import unittest
 from unittest.mock import patch, MagicMock, call
 import os
 from arch_gen.core import generate
+from arch_gen.config import ProjectConfig, SharedConfig, ModuleConfig
 
 class TestCore(unittest.TestCase):
     def setUp(self):
-        self.mock_config = {
-            "solution": "TestSln",
-            "namespace": "TestNs",
-            "framework": "net10.0",
-            "output_path": "./output",
-            "shared": {"layers": ["domain", "infrastructure"]},
-            "modules": [
-                {"name": "Identity", "layers": ["domain", "application", "infrastructure"]}
-            ],
-            "_layer_config": {
-                "domain": {
-                    "template": "classlib",
-                    "subdirs": ["Entities"],
-                    "deps": [],
-                    "name": "Domain"
-                },
-                "application": {
-                    "template": "classlib",
-                    "subdirs": ["UseCases"],
-                    "deps": ["domain"],
-                    "name": "Application"
-                },
-                "infrastructure": {
-                    "template": "classlib", 
-                    "subdirs": ["Data"], 
-                    "deps": ["domain"], 
-                    "name": "Infrastructure"
-                }
-            }
-        }
+        self.mock_config = ProjectConfig(
+            solution="TestSln",
+            namespace="TestNs",
+            framework="net10.0",
+            output_path="./output",
+            shared=SharedConfig(layers=["domain", "infrastructure"]),
+            modules=[
+                ModuleConfig(name="Identity", layers=["domain", "application", "infrastructure"])
+            ]
+        )
 
     @patch("arch_gen.core.load_config")
     @patch("arch_gen.core.create_project", return_value=True)
@@ -72,14 +53,13 @@ class TestCore(unittest.TestCase):
     @patch("arch_gen.core._find_solution_path", return_value=("./output/TestSln.sln", "TestSln.sln"))
     def test_unknown_layer_warning(self, mock_find_sln, mock_warn, mock_load):
         """Verifica se o sistema avisa sobre camadas desconhecidas no JSON."""
-        config = self.mock_config.copy()
-        config["modules"][0]["layers"].append("unknown_layer")
-        mock_load.return_value = config
-
-        with patch("arch_gen.core.create_project", return_value=True):
-            with patch("arch_gen.core.add_to_sln"):
-                with patch("arch_gen.core.add_reference"):
-                    generate("fake.json", dry_run=True)
+        config = self.mock_config.model_copy()
+        with patch.object(config.modules[0], 'layers', config.modules[0].layers + ["unknown_layer"]): # type: ignore
+             mock_load.return_value = config
+             with patch("arch_gen.core.create_project", return_value=True):
+                 with patch("arch_gen.core.add_to_sln"):
+                     with patch("arch_gen.core.add_reference"):
+                         generate("fake.json", dry_run=True)
         
         mock_warn.assert_any_call("Camada desconhecida no módulo 'Identity': 'unknown_layer'")
 
