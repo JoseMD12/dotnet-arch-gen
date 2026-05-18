@@ -17,14 +17,13 @@ classifiers = [
 dependencies = ["pydantic>=2.0"]
 
 [project.scripts]
-dotnet-arch-gen = "dotnet_arch_gen:main"
+dotnet-arch-gen = "arch_gen.__main__:main"
 
 [project.optional-dependencies]
 dev = ["pytest", "pytest-cov", "bandit", "pip-audit", "mypy"]
 
 [tool.setuptools]
 packages = ["arch_gen"]
-py-modules = ["dotnet_arch_gen"]
 
 [tool.setuptools.dynamic]
 version = { attr = "arch_gen.__version__" }

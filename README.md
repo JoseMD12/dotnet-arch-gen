@@ -37,14 +37,14 @@ pip install -e ".[dev]"
 
 ## Uso
 
-Após a instalação, você pode usar o comando diretamente ou via script Python:
+Após a instalação, você pode usar o comando diretamente ou via módulo Python:
 
 ```bash
 # Comando direto (recomendado após instalação)
 dotnet-arch-gen --config meu-projeto.json
 
-# Ou via script
-python dotnet_arch_gen.py --config meu-projeto.json
+# Ou via módulo
+python -m arch_gen --config meu-projeto.json
 ```
 
 Outros exemplos:
@@ -191,11 +191,11 @@ AuthSecurity/
 
 ```text
 dotnet-arch-gen/
-├── dotnet_arch_gen.py        # Ponto de entrada — CLI e argumentos
 ├── example-config.json       # Configuração de exemplo
 ├── pyproject.toml            # Dependências e configuração do projeto
 └── arch_gen/
     ├── __init__.py           # Versão do pacote
+    ├── __main__.py          # Ponto de entrada da aplicação
     ├── core.py               # Orquestração principal
     ├── config.py             # Leitura e validação do JSON com Pydantic
     ├── generators.py         # Criação de projetos, pastas e arquivos de suporte
