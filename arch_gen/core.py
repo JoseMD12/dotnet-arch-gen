@@ -66,7 +66,7 @@ def generate(config_path: str, dry_run: bool, output_path_override: str = None, 
 
     # -- Arquivos de Suporte --
     step("Arquivos de suporte")
-    create_support_files(root_dir, config.model_dump(), dry_run)
+    create_support_files(root_dir, config, dry_run)
 
     # -- Resumo Final --
     _print_summary(root_dir)
