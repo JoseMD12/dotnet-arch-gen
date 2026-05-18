@@ -6,9 +6,6 @@ on:
   schedule:
     - cron: "0 6 * * 1"
   workflow_dispatch:
-        
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   pip-audit:
@@ -25,13 +22,8 @@ jobs:
           python-version: "3.13"
           cache: "pip"
 
-      - name: Instalar pip-audit
-        run: pip install pip-audit
+      - name: Instalar dependências
+        run: pip install -e ".[dev]"
 
       - name: Auditar dependências
-        run: pip-audit --requirement <(pip install -e ".[dev]" --dry-run 2>/dev/null | grep "Requirement already satisfied\|Collecting" | awk '{print $NF}' || true)
-
-      - name: Auditar dependências do projeto
-        run: |
-          pip install -e ".[dev]"
-          pip-audit
+        run: pip-audit
