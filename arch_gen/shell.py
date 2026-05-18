@@ -4,11 +4,7 @@ from typing import List, Optional
 from .ui import Colors, warn, err
 
 ALLOWED_FLAGS = {
-    "--version",
     "--output",
-    "--verbose",
-    "--dry-run",
-    "--config",
     "--name",
     "--framework",
     "--no-restore",
