@@ -1,35 +1,59 @@
 import subprocess
 import sys
+import shutil
 from typing import List, Optional
 from .ui import Colors, warn, err
 
+DOTNET_PATH: Optional[str] = shutil.which("dotnet")
+
 ALLOWED_FLAGS = {
-    "--output",
-    "--name",
-    "--framework",
-    "--no-restore",
-    "--use-minimal-apis",
+    "--version", "--name", "--output", "--framework",
+    "-o", "-f", "-n", "--no-restore", "--use-minimal-apis"
+}
+
+ALLOWED_COMMANDS = {
+    "new", "sln", "add", "reference"
 }
 
 def check_dotnet_sdk() -> str:
-    """Verifica se o dotnet SDK está instalado."""
+    """Verifica se o dotnet SDK está instalado usando o caminho absoluto."""
+    if not DOTNET_PATH:
+        err("dotnet SDK não encontrado no PATH. Certifique-se de que o .NET está instalado.")
+        sys.exit(1)
+    
     try:
-        result = subprocess.run(["dotnet", "--version"], capture_output=True, text=True, check=True)
+        # Usamos o caminho absoluto (DOTNET_PATH) para resolver B607
+        result = subprocess.run([DOTNET_PATH, "--version"], capture_output=True, text=True, check=True)
         return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
-        err("dotnet SDK não encontrado. Certifique-se de que o .NET está instalado e no PATH.")
+        err("Erro ao verificar versão do dotnet SDK.")
         sys.exit(1)
 
 def _validate_args(cmd: List[str]):
     """
     Previne Flag Injection validando os argumentos do comando.
     """
+    if len(cmd) > 1:
+        subcommand = cmd[1]
+        if subcommand not in ALLOWED_COMMANDS and not subcommand.startswith("-"):
+            err(f"Subcomando .NET não reconhecido ou não permitido: {subcommand}")
+            sys.exit(1)
+
     for arg in cmd[1:]:
         if arg.startswith("-") and arg not in ALLOWED_FLAGS:
             err(f"Argumento de CLI potencialmente perigoso detectado: {arg}")
             sys.exit(1)
 
 def run_command(cmd: List[str], dry_run: bool = False, cwd: Optional[str] = None, verbose: bool = False):
+    """Executa um comando dotnet com proteção absoluta contra injeção."""
+    if not DOTNET_PATH:
+        err("Operação abortada: dotnet SDK não encontrado.")
+        sys.exit(1)
+
+    # Normaliza o comando para usar o caminho absoluto do executável
+    if cmd and cmd[0] == "dotnet":
+        cmd[0] = DOTNET_PATH
+
     _validate_args(cmd)
     
     if dry_run:

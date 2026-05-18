@@ -4,37 +4,30 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dotnet-arch-gen"
-version = "1.0.0"
+dynamic = ["version"]
 description = "Gerador de arquitetura .NET via linha de comando"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [
-    { name = "Seu Nome", email = "seu.email@exemplo.com" }
-]
+authors = [{ name = "José Dotta", email = "josehmd.dev@gmail.com" }]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = [
-    "pydantic>=2.0",
-]
+dependencies = ["pydantic>=2.0"]
 
 [project.scripts]
 dotnet-arch-gen = "dotnet_arch_gen:main"
 
 [project.optional-dependencies]
-dev = [
-    "pytest",
-    "pytest-cov",
-    "bandit",
-    "pip-audit",
-    "mypy",
-]
+dev = ["pytest", "pytest-cov", "bandit", "pip-audit", "mypy"]
 
 [tool.setuptools]
 packages = ["arch_gen"]
-py-modules = ["dotnet-arch-gen"]
+py-modules = ["dotnet_arch_gen"]
+
+[tool.setuptools.dynamic]
+version = { attr = "arch_gen.__version__" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -43,7 +36,7 @@ addopts = "--cov=arch_gen --cov-report=term-missing"
 
 [tool.bandit]
 exclude_dirs = ["tests"]
-skips = ["B404", "B603"] # Ignoramos globalmente apenas após implementar o guard no shell.py
+skips = ["B404", "B603"]
 
 [tool.mypy]
 python_version = "3.10"
